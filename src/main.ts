@@ -188,7 +188,13 @@ class main {
     public async calculateDistance(address: string): Promise<void> {
         const url: string = `https://nominatim.openstreetmap.org/search?q=${address}`;
 
-        let response = await fetch(url);
+        let response = await fetch(url, {
+            mode: 'cors',
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
         let results = await response.json();
         console.log(results);
     }
