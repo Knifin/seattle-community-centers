@@ -190,7 +190,7 @@ class main {
 
         let response = await fetch(url, {
             mode: 'cors',
-            method: 'POST',
+            method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
             }
