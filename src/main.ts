@@ -184,7 +184,20 @@ class main {
 
         return output;
     }
+
+    public async calculateDistance(address: string): Promise<void> {
+        const url: string = `https://nominatim.openstreetmap.org/search?q=${address}`;
+
+        let response = await fetch(url);
+        let results = await response.json();
+        console.log(results);
+    }
 }
 
 const app: main = new main();
 document.querySelector<HTMLDivElement>('#schedule-current')!.innerHTML = `${app.print(new Date(), 'Tot Rooms Currently Open')}`;
+document.querySelector<HTMLButtonElement>('#input-button')!.addEventListener('click', (e) => {
+    e.preventDefault();
+    const address: string = document.querySelector<HTMLInputElement>('#input-address')!.value;
+    app.calculateDistance(address);
+});
