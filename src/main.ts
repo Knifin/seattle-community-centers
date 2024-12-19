@@ -199,7 +199,7 @@ class main {
         let results = await response.json();
 
         const lat = results[0].lat;
-        const lng = results[0].lng;
+        const lng = results[0].lon;
         console.log(lat,lng);
     }
 }
