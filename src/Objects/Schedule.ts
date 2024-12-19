@@ -76,7 +76,7 @@ export default class Schedule {
     }
 
     public getTimeUntilClose(currHour: number, currMinute: number): string {
-        const time: number = this._endHour * 60 + this.endMinute - currHour * 60 + currMinute;
+        const time: number = (this._endHour * 60 + this._endMinute) - (currHour * 60 + currMinute);
         const hoursLeft: number = Math.floor(time / 60);
         const minutesLeft: number = time % 60;
 
