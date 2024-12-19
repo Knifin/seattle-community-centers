@@ -70,15 +70,17 @@ export default class Schedule {
             endMinutes = `${this._endMinute}`;
         }
 
-        const output: string = `${startHours}:${startMinutes} ${startAmPm} - ${endHours}:${endMinutes} ${endAmPm}`;
-
-        return output;
+        return `${startHours}:${startMinutes} ${startAmPm} - ${endHours}:${endMinutes} ${endAmPm}`;
     }
 
     public getTimeUntilClose(currHour: number, currMinute: number): string {
         const time: number = (this._endHour * 60 + this._endMinute) - (currHour * 60 + currMinute);
         const hoursLeft: number = Math.floor(time / 60);
         const minutesLeft: number = time % 60;
+
+        if (hoursLeft === 0) {
+            return `${minutesLeft} minutes`;
+        }
 
         return `${hoursLeft} hours, ${minutesLeft} minutes`;
     }

@@ -170,12 +170,12 @@ class main {
 
     public print(date: Date, title: string): string {
         const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
-        let output: string = `<table><thead><tr><td colspan="5"><strong>${title}</strong></td></tr><tr><th>Name</th><th>Address</th><th>Day</th><th>Schedule</th><th>How long can we play for?</th></tr></thead>`;
+        let output: string = `<table><thead><tr><td colspan="5"><strong>${title}</strong></td></tr><tr><th>Name</th><th>Address</th><th>Schedule</th><th>Closes in</th></tr></thead>`;
 
         this._cc.forEach((item: CommunityCenter): void => {
             item.schedule.forEach((slot: Schedule): void => {
                 if (slot.isOpen(dayName, date.getHours(), date.getMinutes())) {
-                    output += `<tr><td><a href="${item.website}" target="_blank">${item.name}</a></td><td><a href="${item.getDirections()}" target="_blank">${item.address}</a></td><td>${slot.day}</td><td>${slot.getHoursOpen()}</td><td>${slot.getTimeUntilClose(date.getHours(),date.getMinutes())}</td></tr>`;
+                    output += `<tr><td><a href="${item.website}" target="_blank">${item.name}</a></td><td><a href="${item.getDirections()}" target="_blank">${item.address}</a></td><td>${slot.getHoursOpen()}</td><td>${slot.getTimeUntilClose(date.getHours(),date.getMinutes())}</td></tr>`;
                 }
             });
         });
@@ -183,52 +183,10 @@ class main {
         output += `</table>`;
 
         return output;
-    }
-
-    public async printWithDistance(date: Date, title: string, address: string): Promise<string> {
-        const url: string = `https://nominatim.openstreetmap.org/search?q=${address}&format=jsonv2`;
-        let response: Response = await fetch(url, {
-            mode: 'cors',
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*',
-            }
-        });
-        let results = await response.json();
-        const lat = results[0].lat;
-        const lng = results[0].lon;
-
-        const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
-        let output: string = `<table><thead><tr><td colspan="6"><strong>${title}</strong></td></tr><tr><th>Name</th><th>Address</th><th>Day</th><th>Schedule</th><th>How long can we play for?</th><th>Distance</th></tr></thead>`;
-
-        this._cc.forEach((item: CommunityCenter): void => {
-            item.schedule.forEach((slot: Schedule): void => {
-                if (slot.isOpen(dayName, date.getHours(), date.getMinutes())) {
-                    const distance: number = this.distanceBetweenPoints(lat,lng,item.lat,item.lng);
-                    output += `<tr><td><a href="${item.website}" target="_blank">${item.name}</a></td><td><a href="${item.getDirections()}" target="_blank">${item.address}</a></td><td>${slot.day}</td><td>${slot.getHoursOpen()}</td><td>${slot.getTimeUntilClose(date.getHours(),date.getMinutes())}</td><td>${distance}</td></tr>`;
-                }
-            });
-        });
-
-        output += `</table>`;
-
-        return output;
-    }
-
-    private distanceBetweenPoints(lat_a: number, lng_a: number, lat_b: number, lng_b: number): number {
-        const R: number = 6371e3;
-        const p1: number = lat_a * Math.PI/180;
-        const p2: number = lat_b * Math.PI/180;
-        const diffLng: number = ((lng_b - lng_a) * Math.PI)/ 180;
-        return Math.acos(Math.sin(p1) * Math.sin(p2) + Math.cos(p1) * Math.cos(p2) * Math.cos(diffLng)) * R;
     }
 }
 
 const app: main = new main();
-document.querySelector<HTMLDivElement>('#schedule-current')!.innerHTML = `${app.print(new Date(), 'Tot Rooms Currently Open')}`;
-document.querySelector<HTMLButtonElement>('#input-button')!.addEventListener('click', (e) => {
-    e.preventDefault();
-    const address: string = document.querySelector<HTMLInputElement>('#input-address')!.value;
-    document.querySelector<HTMLDivElement>('#schedule-current')!.innerHTML = `${app.printWithDistance(new Date(), 'Tot Rooms Currently Open (with distance)', address)}`;
-});
+const now: Date = new Date();
+const dayName: string = now.toLocaleString('en-US', { weekday: 'long' });
+document.querySelector<HTMLDivElement>('#schedule-current')!.innerHTML = `${app.print(now, `Tot Rooms Currently Open on ${dayName}`)}`;
