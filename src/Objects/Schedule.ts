@@ -33,12 +33,14 @@ export default class Schedule {
         return this._endMinute;
     }
 
-    public isOpen(day: string, hours: number, minutes: number): boolean {
+    public isOpen(day: string, hours: number, minutes: number, endDate: Date): boolean {
         const time: number = hours * 60 + minutes;
         const startTime: number = this._startHour * 60 + this._startMinute;
         const endTime: number = this._endHour * 60 + this._endMinute;
 
-        return (this._day === day && time >= startTime && time <= endTime);
+        const currDate: Date = new Date();
+
+        return (this._day === day && currDate <= endDate && time >= startTime && time <= endTime);
     }
 
     public getHoursOpen(): string {

@@ -7,14 +7,24 @@ export default class CommunityCenter {
     private _website: string;
     private _lat: number;
     private _lng: number;
-    private readonly _schedule: Array<Schedule>;
+
+    private readonly _totRoomSchedule: Array<Schedule>;
+    private readonly _totGymSchedule: Array<Schedule>;
+
+    private _totRoomEndDate: Date;
+    private _totGymEndDate: Date;
 
     constructor(name: string) {
         this._name = name;
         this._website = '';
         this._gmapsUrl = '';
         this._address = '';
-        this._schedule = new Array<Schedule>();
+
+        this._totRoomSchedule = new Array<Schedule>();
+        this._totGymSchedule = new Array<Schedule>();
+
+        this._totRoomEndDate = new Date();
+        this._totGymEndDate = new Date();
 
         this._lat = 0;
         this._lng = 0;
@@ -32,8 +42,12 @@ export default class CommunityCenter {
         this._gmapsUrl = value;
     }
 
-    public get schedule(): Array<Schedule> {
-        return this._schedule;
+    public get totRoomSchedule(): Array<Schedule> {
+        return this._totRoomSchedule;
+    }
+
+    public get totGymSchedule(): Array<Schedule> {
+        return this._totGymSchedule;
     }
 
     public get address(): string {
@@ -68,8 +82,28 @@ export default class CommunityCenter {
         this._website = value;
     }
 
-    public addSchedule(day: string, startHour: number, startMinute: number, endHour: number, endMinute: number) {
-        this._schedule.push(new Schedule(day, startHour, startMinute, endHour, endMinute));
+    public get totRoomEndDate(): Date {
+        return this._totRoomEndDate;
+    }
+
+    public set totRoomEndDate(value: Date) {
+        this._totRoomEndDate = value;
+    }
+
+    public get totGymEndDate(): Date {
+        return this._totGymEndDate;
+    }
+
+    public set totGymEndDate(value: Date) {
+        this._totGymEndDate = value;
+    }
+
+    public addTotRoomSchedule(day: string, startHour: number, startMinute: number, endHour: number, endMinute: number) {
+        this._totRoomSchedule.push(new Schedule(day, startHour, startMinute, endHour, endMinute));
+    }
+
+    public addTotGymSchedule(day: string, startHour: number, startMinute: number, endHour: number, endMinute: number) {
+        this._totGymSchedule.push(new Schedule(day, startHour, startMinute, endHour, endMinute));
     }
 
     public getDirections(): string {
