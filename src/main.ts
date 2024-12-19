@@ -197,7 +197,10 @@ class main {
             }
         });
         let results = await response.json();
-        console.log(results);
+
+        const lat = results[0].lat;
+        const lng = results[0].lng;
+        console.log(lat,lng);
     }
 }
 
