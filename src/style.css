@@ -20,11 +20,3 @@ a:link, a:visited {
   text-decoration: underline;
   color: blue;
 }
-
-.open {
-  background-color: lightgreen;
-}
-
-form {
-  margin: 0 0 20px 0;
-}
