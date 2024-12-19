@@ -169,24 +169,30 @@ class main {
     }
 
     public print(date: Date, title: string): string {
-        const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
-        let output: string = `<table><thead><tr><td colspan="5"><strong>${title}</strong></td></tr><tr><th>Name</th><th>Address</th><th>Schedule</th><th>Closes in</th></tr></thead>`;
+        let rows: Set<string> = new Set();
 
         this._cc.forEach((item: CommunityCenter): void => {
             item.schedule.forEach((slot: Schedule): void => {
                 if (slot.isOpen(dayName, date.getHours(), date.getMinutes())) {
-                    output += `<tr><td><a href="${item.website}" target="_blank">${item.name}</a></td><td><a href="${item.getDirections()}" target="_blank">${item.address}</a></td><td>${slot.getHoursOpen()}</td><td>${slot.getTimeUntilClose(date.getHours(),date.getMinutes())}</td></tr>`;
+                    rows.add(`<tr><td><a href="${item.website}" target="_blank">${item.name}</a></td><td><a href="${item.getDirections()}" target="_blank">${item.address}</a></td><td>${slot.getHoursOpen()}</td><td>${slot.getTimeUntilClose(date.getHours(),date.getMinutes())}</td></tr>`);
                 }
             });
         });
 
-        output += `</table>`;
-
-        return output;
+        if (rows.size <= 0) {
+            return "Nothing open right now.";
+        } else {
+            let output: string = `<table><thead><tr><td colspan="4"><strong>${title}</strong></td></tr><tr><th>Name</th><th>Address</th><th>Schedule</th><th>Closes in</th></tr></thead>`;
+            rows.forEach(row => {
+               output += row;
+            });
+            output += `</table>`;
+            return output;
+        }
     }
 }
 
 const app: main = new main();
 const now: Date = new Date();
 const dayName: string = now.toLocaleString('en-US', { weekday: 'long' });
-document.querySelector<HTMLDivElement>('#schedule-current')!.innerHTML = `${app.print(now, `Tot Rooms Currently Open on ${dayName}`)}`;
+document.querySelector<HTMLDivElement>('#schedule-current')!.innerHTML = `${app.print(now, `Tot rooms currently open on ${dayName}`)}`;
