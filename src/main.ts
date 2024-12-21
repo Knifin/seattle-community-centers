@@ -3,13 +3,20 @@ import CommunityCenter from "./Objects/CommunityCenter.ts";
 import Schedule from "./Objects/Schedule.ts";
 
 class main {
-    public _cc: Array<CommunityCenter>;
-    private readonly _currDate: Date;
+    protected _cc: Array<CommunityCenter>;
+    protected _currDate: Date;
 
     constructor() {
         this._cc = new Array<CommunityCenter>();
         this._currDate = new Date();
+        this.buildSchedule();
+    }
 
+    public currDateName(): string {
+        return this._currDate.toLocaleString('en-US', {weekday: 'long'});
+    }
+
+    protected buildSchedule(): void {
         // Ballard CC
         let location: CommunityCenter = new CommunityCenter('Ballard Community Center');
         location.website = 'https://www.seattle.gov/parks/all-community-centers/ballard-community-center';
@@ -340,61 +347,42 @@ class main {
         this._cc.push(location);
     }
 
-    public get currDate(): Date {
-        return this._currDate;
-    }
-
-    public get currDateName(): string {
-        return this._currDate.toLocaleString('en-US', {weekday: 'long'});
-    }
-
-    public printTotRoom(title: string): string {
+    public printSchedule(title: string, id: string, type: string): void {
         let rows: Set<string> = new Set();
 
-        this._cc.forEach((item: CommunityCenter): void => {
-            item.totRoomSchedule.forEach((slot: Schedule): void => {
-                if (slot.isOpen(this.currDateName, this._currDate.getHours(), this._currDate.getMinutes(), item.totRoomEndDate)) {
-                    rows.add(`<tr><td><a href="${item.website}" target="_blank">${item.name}</a></td><td><a href="${item.getDirections()}" target="_blank">${item.address}</a></td><td>${slot.getHoursOpen()}</td><td>${slot.getTimeUntilClose(this._currDate.getHours(),this._currDate.getMinutes())}</td></tr>`);
-                }
-            });
+        type ScheduleKey = 'totRoomSchedule' | 'totGymSchedule';
+        const scheduleKey: ScheduleKey = type === 'tot rooms' ? 'totRoomSchedule' : 'totGymSchedule';
+
+        this._cc.forEach((item: CommunityCenter) => {
+            const schedule: Schedule[] = item[scheduleKey];
+            if (Array.isArray(schedule)) {
+                schedule.forEach((slot: Schedule) => {
+                    if (slot.isOpen(this.currDateName(), this._currDate.getHours(), this._currDate.getMinutes(), item.totRoomEndDate)) {
+                        rows.add(`
+                            <tr>
+                                <td><a href="${item.website}" target="_blank">${item.name}</a></td>
+                                <td><a href="${item.getDirections()}" target="_blank">${item.address}</a></td>
+                                <td>${slot.getHoursOpen()}</td>
+                                <td>${slot.getTimeUntilClose(this._currDate.getHours(), this._currDate.getMinutes())}</td>
+                            </tr>
+                        `);
+                    }
+                });
+            }
         });
 
-        if (rows.size <= 0) {
-            return "<p>Nothing open right now for tot rooms.</p>";
-        } else {
-            let output: string = `<table><thead><tr><td colspan="4"><strong>${title}</strong></td></tr><tr><th>Name</th><th>Address</th><th>Schedule</th><th>Closes in</th></tr></thead>`;
+        let output: string = `<p>Nothing open right now for ${type}.</p>`;
+        if (rows.size > 0) {
+            output = `<table><thead><tr><td colspan="4"><strong>${title}</strong></td></tr><tr><th>Name</th><th>Address</th><th>Schedule</th><th>Closes in</th></tr></thead>`;
             rows.forEach(row => {
                output += row;
             });
             output += `</table>`;
-            return output;
         }
-    }
-
-    public printTotGym(title: string): string {
-        let rows: Set<string> = new Set();
-
-        this._cc.forEach((item: CommunityCenter): void => {
-            item.totGymSchedule.forEach((slot: Schedule): void => {
-                if (slot.isOpen(this.currDateName, this._currDate.getHours(), this._currDate.getMinutes(), item.totRoomEndDate)) {
-                    rows.add(`<tr><td><a href="${item.website}" target="_blank">${item.name}</a></td><td><a href="${item.getDirections()}" target="_blank">${item.address}</a></td><td>${slot.getHoursOpen()}</td><td>${slot.getTimeUntilClose(this._currDate.getHours(),this._currDate.getMinutes())}</td></tr>`);
-                }
-            });
-        });
-
-        if (rows.size <= 0) {
-            return "<p>Nothing open right now for tot gyms.</p>";
-        } else {
-            let output: string = `<table><thead><tr><td colspan="4"><strong>${title}</strong></td></tr><tr><th>Name</th><th>Address</th><th>Schedule</th><th>Closes in</th></tr></thead>`;
-            rows.forEach(row => {
-                output += row;
-            });
-            output += `</table>`;
-            return output;
-        }
+        document.querySelector<HTMLDivElement>(id)!.innerHTML = output;
     }
 }
 
 const app: main = new main();
-document.querySelector<HTMLDivElement>('#tot-schedule-current')!.innerHTML = `${app.printTotRoom(`Tot rooms currently open on ${app.currDateName}`)}`;
-document.querySelector<HTMLDivElement>('#gym-schedule-current')!.innerHTML = `${app.printTotGym(`Tot rooms currently open on ${app.currDateName}`)}`;
+app.printSchedule(`Tot gym rooms currently open on ${app.currDateName()}`, '#gym-schedule-current', 'tot gym rooms');
+app.printSchedule(`Tot rooms currently open on ${app.currDateName()}`, '#tot-schedule-current', 'tot rooms');
