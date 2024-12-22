@@ -422,4 +422,4 @@ app.printOpenNowSchedule(`Tot gym rooms currently open on ${app.currDateName()}`
 app.printOpenNowSchedule(`Tot rooms currently open on ${app.currDateName()}`, '#tot-schedule-current', 'tot rooms');
 
 app.printOpenTodaySchedule(`Tot gym rooms open on ${app.currDateName()}`, '#gym-schedule-today', 'tot gym rooms');
-app.printOpenTodaySchedule(`Tot gym rooms open on ${app.currDateName()}`, '#tot-schedule-today', 'tot rooms');
+app.printOpenTodaySchedule(`Tot rooms open on ${app.currDateName()}`, '#tot-schedule-today', 'tot rooms');
