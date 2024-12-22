@@ -43,6 +43,10 @@ export default class Schedule {
         return (this._day === day && currDate <= endDate && time >= startTime && time <= endTime);
     }
 
+    public isOpenToday(day: string): boolean {
+        return this._day === day;
+    }
+
     public getHoursOpen(): string {
         const startAmPm: string = this._startHour >= 12 ? 'PM' : 'AM';
         const endAmPm: string = this._endHour >= 12 ? 'PM' : 'AM';

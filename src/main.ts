@@ -347,7 +347,7 @@ class main {
         this._cc.push(location);
     }
 
-    public printSchedule(title: string, id: string, type: string): void {
+    public printOpenNowSchedule(title: string, id: string, type: string): void {
         let rows: Set<string> = new Set();
 
         type ScheduleKey = 'totRoomSchedule' | 'totGymSchedule';
@@ -381,8 +381,45 @@ class main {
         }
         document.querySelector<HTMLDivElement>(id)!.innerHTML = output;
     }
+
+    public printOpenTodaySchedule(title: string, id: string, type: string): void {
+        let rows: Set<string> = new Set();
+
+        type ScheduleKey = 'totRoomSchedule' | 'totGymSchedule';
+        const scheduleKey: ScheduleKey = type === 'tot rooms' ? 'totRoomSchedule' : 'totGymSchedule';
+
+        this._cc.forEach((item: CommunityCenter) => {
+            const schedule: Schedule[] = item[scheduleKey];
+            if (Array.isArray(schedule)) {
+                schedule.forEach((slot: Schedule) => {
+                    if (slot.isOpenToday(this.currDateName())) {
+                        rows.add(`
+                            <tr>
+                                <td><a href="${item.website}" target="_blank">${item.name}</a></td>
+                                <td><a href="${item.getDirections()}" target="_blank">${item.address}</a></td>
+                                <td>${slot.getHoursOpen()}</td>
+                            </tr>
+                        `);
+                    }
+                });
+            }
+        });
+
+        let output: string = `<p>Nothing open right now for ${type}.</p>`;
+        if (rows.size > 0) {
+            output = `<table><thead><tr><td colspan="4"><strong>${title}</strong></td></tr><tr><th>Name</th><th>Address</th><th>Schedule</th></tr></thead>`;
+            rows.forEach(row => {
+                output += row;
+            });
+            output += `</table>`;
+        }
+        document.querySelector<HTMLDivElement>(id)!.innerHTML = output;
+    }
 }
 
 const app: main = new main();
-app.printSchedule(`Tot gym rooms currently open on ${app.currDateName()}`, '#gym-schedule-current', 'tot gym rooms');
-app.printSchedule(`Tot rooms currently open on ${app.currDateName()}`, '#tot-schedule-current', 'tot rooms');
+app.printOpenNowSchedule(`Tot gym rooms currently open on ${app.currDateName()}`, '#gym-schedule-current', 'tot gym rooms');
+app.printOpenNowSchedule(`Tot rooms currently open on ${app.currDateName()}`, '#tot-schedule-current', 'tot rooms');
+
+app.printOpenTodaySchedule(`Tot gym rooms open on ${app.currDateName()}`, '#gym-schedule-today', 'tot gym rooms');
+app.printOpenTodaySchedule(`Tot gym rooms open on ${app.currDateName()}`, '#tot-schedule-today', 'tot rooms');
