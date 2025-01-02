@@ -1,93 +1,101 @@
 export default class Schedule {
+    private readonly _today: Date;
     private readonly _day: string;
-    private readonly _startHour: number;
-    private readonly _startMinute: number;
-    private readonly _endHour: number;
-    private readonly _endMinute: number;
+    private readonly _startDate: Date;
+    private readonly _endDate: Date;
+    private readonly _openTime: Date;
+    private readonly _closeTime: Date;
+    private readonly _type: string;
 
-    public constructor(day: string, startHour: number, startMinute: number, endHour: number, endMinute: number) {
+    public constructor(starteDate: string, endDate: string, day: string, openTime: string, closeTime: string, type: string) {
+        this._today = new Date();
+
+        this._startDate = new Date(starteDate);
+        this._endDate = new Date(endDate);
+
         this._day = day;
-        this._startHour = startHour;
-        this._startMinute = startMinute;
-        this._endHour = endHour;
-        this._endMinute = endMinute;
+
+        this._openTime = new Date();
+        this._openTime.setHours(Number(openTime.split(':')[0]));
+        this._openTime.setMinutes(Number(openTime.split(':')[1]));
+        this._openTime.setSeconds(0);
+
+        this._closeTime = new Date();
+        this._closeTime.setHours(Number(closeTime.split(':')[0]));
+        this._closeTime.setMinutes(Number(closeTime.split(':')[1]));
+        this._closeTime.setSeconds(0);
+
+        this._type = type;
+    }
+
+    public get today(): Date {
+        return this._today;
     }
 
     public get day(): string {
         return this._day;
     }
 
-    public get startHour(): number {
-        return this._startHour;
+    public get startDate(): Date {
+        return this._startDate;
     }
 
-    public get startMinute(): number {
-        return this._startMinute;
+    public get endDate(): Date {
+        return this._endDate;
     }
 
-    public get endHour(): number {
-        return this._endHour;
+    public get openTime(): Date {
+        return this._openTime;
     }
 
-    public get endMinute(): number {
-        return this._endMinute;
+    public get closeTime(): Date {
+        return this._closeTime;
     }
 
-    public isOpen(day: string, hours: number, minutes: number, endDate: Date): boolean {
-        const time: number = hours * 60 + minutes;
-        const startTime: number = this._startHour * 60 + this._startMinute;
-        const endTime: number = this._endHour * 60 + this._endMinute;
-
-        const currDate: Date = new Date();
-
-        return (this._day === day && currDate <= endDate && time >= startTime && time <= endTime);
-    }
-
-    public isOpenToday(day: string): boolean {
-        return this._day === day;
+    public get type(): string {
+        return this._type;
     }
 
     public getHoursOpen(): string {
-        const startAmPm: string = this._startHour >= 12 ? 'PM' : 'AM';
-        const endAmPm: string = this._endHour >= 12 ? 'PM' : 'AM';
-
-        let startHours: number = this._startHour;
-        let endHours: number = this._endHour;
-        let startMinutes: string = '';
-        let endMinutes: string = '';
-
-        if (startHours >= 13) {
-            startHours = startHours % 12;
-        }
-
-        if (endHours >= 13) {
-            endHours = endHours % 12;
-        }
-
-        if (this._startMinute === 0) {
-            startMinutes = '00';
-        } else {
-            startMinutes = `${this._startMinute}`;
-        }
-
-        if (this._endMinute === 0) {
-            endMinutes = '00';
-        } else {
-            endMinutes = `${this._endMinute}`;
-        }
-
-        return `${startHours}:${startMinutes} ${startAmPm} - ${endHours}:${endMinutes} ${endAmPm}`;
+        return `${this._openTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} - ${this._closeTime.toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'})}`;
     }
 
-    public getTimeUntilClose(currHour: number, currMinute: number): string {
-        const time: number = (this._endHour * 60 + this._endMinute) - (currHour * 60 + currMinute);
-        const hoursLeft: number = Math.floor(time / 60);
-        const minutesLeft: number = time % 60;
+    public getTimeLeft(): string {
+        const now: Date = new Date();
+        const diff: number = this._closeTime.getTime() - now.getTime();
 
-        if (hoursLeft === 0) {
-            return `${minutesLeft} minutes`;
+        const hours: number = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes: number = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+        const hoursText: string = hours == 1 ? 'hour' : 'hours';
+        const minutesText: string = minutes == 1 ? 'minute' : 'minutes';
+
+        if (hours === 0) {
+            return `${minutes} ${minutesText}`;
         }
 
-        return `${hoursLeft} hours, ${minutesLeft} minutes`;
+        return `${hours} ${hoursText} and ${minutes} ${minutesText}`;
+    }
+
+    private getTodayDayName(): string {
+        return this._today.toLocaleString('en-US', {weekday: 'long'});
+    }
+
+    public isOpenToday(): boolean {
+        return (
+            this._startDate <= this._today &&
+            this._endDate >= this._today &&
+            this._day === this.getTodayDayName()
+        );
+    }
+
+    public isOpenNow(): boolean {
+        return (
+            this._startDate <= this._today &&
+            this._endDate >= this._today &&
+            this._openTime <= this._today &&
+            this._closeTime >= this._today &&
+            this._day === this.getTodayDayName()
+        );
     }
 }
