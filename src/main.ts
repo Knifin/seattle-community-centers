@@ -322,7 +322,7 @@ class main {
             <table>
             <thead>
                 <tr>
-                    <td colspan="3"><h3>${title}</h3></td>
+                    <td colspan="4"><h3>${title}</h3></td>
                 </tr>
                 <tr>
                     <th>Name</th>
@@ -414,17 +414,23 @@ class main {
     }
 
     public printSchedules(): void {
-        app.printTodaysSchedule('Tot Gym', `Tot Gyms currently open on ${app.getWeekDay()}`,'#gym-schedule-today');
-        app.printTodaysSchedule('Tot Room', `Tot Rooms currently open on ${app.getWeekDay()}`,'#tot-room-schedule-today');
+        app.printTodaysSchedule('Tot Gym', `Tot Gyms currently open today`,'#gym-schedule-today');
+        app.printTodaysSchedule('Tot Room', `Tot Rooms currently open today`,'#tot-room-schedule-today');
     }
 
     public printCurrentSchedule(): void {
-        app.printOpenNow('Tot Gym', `Tot Gyms open on ${app.getWeekDay()}`,'#gym-schedule-now');
-        app.printOpenNow('Tot Room', `Tot Rooms open on ${app.getWeekDay()}`,'#tot-room-schedule-now');
+        app.printOpenNow('Tot Gym', `Tot Gyms open today`,'#gym-schedule-now');
+        app.printOpenNow('Tot Room', `Tot Rooms open today`,'#tot-room-schedule-now');
+    }
+
+    public printHeaders(): void {
+        document.querySelector<HTMLHeadingElement>('#currently-open')!.innerHTML = `Currently Open on ${this.getWeekDay()}`;
+        document.querySelector<HTMLHeadingElement>('#todays-schedule')!.innerHTML = `Today's Schedule on ${this.getWeekDay()}`;
     }
 }
 
 const app: main = new main();
+app.printHeaders();
 app.printSchedules();
 app.printCurrentSchedule();
 
@@ -432,6 +438,7 @@ const now: Date = new Date();
 const millisecondsUntilNextMinute: number = (60 - now.getSeconds()) * 1000 - now.getMilliseconds();
 setTimeout(() => {
     setInterval(() => {
+        app.printHeaders();
         app.printCurrentSchedule();
     }, 60000);
 }, millisecondsUntilNextMinute);
