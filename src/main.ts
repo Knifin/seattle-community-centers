@@ -328,7 +328,7 @@ class main {
                     <th>Name</th>
                     <th>Address</th>
                     <th>Schedule</th>
-                    <th>Left to Play</th>
+                    <th>Left to play</th>
                 </tr>
             </thead>
             <tbody>
@@ -358,13 +358,60 @@ class main {
         `;
 
         if (!isOpenCheck) {
-            html = `Nothing open right now for ${type}`;
+            html = `<p>Nothing open right now for ${type}</p>`;
         }
 
         document.querySelector<HTMLDivElement>(divId)!.innerHTML = html;
     }
 
-    public printTodaysSchedule(type: string, title: string, divId: string) {
+    public printOpenLater(type: string, title: string, divId: string) {
+        let html: string = `
+            <table>
+            <thead>
+                <tr>
+                    <td colspan="4"><h3>${title}</h3></td>
+                </tr>
+                <tr>
+                    <th>Name</th>
+                    <th>Address</th>
+                    <th>Schedule</th>
+                    <th>Time until open</th>
+                </tr>
+            </thead>
+            <tbody>
+        `;
+
+        let isOpenCheck: boolean = false;
+        this._cc.forEach(cc => {
+            cc.schedule.forEach(item => {
+                if (item.type === type && item.isOpenLater()) {
+                    html += `
+                        <tr>
+                        <td><a href="${cc.website}" target="_blank">${cc.name}</a></td>
+                        <td><a href="${cc.getDirections()}" target="_blank">${cc.address}</a></td>
+                        <td>${item.getHoursOpen()}</td>
+                        <td>${item.getTimeUntilOpen()}</td>
+                        </tr>
+                    `;
+
+                    isOpenCheck = true;
+                }
+            });
+        });
+
+        html += `
+            </tbody>
+            </table>
+        `;
+
+        if (!isOpenCheck) {
+            html = `<p>Nothing open later for ${type}</p>`;
+        }
+
+        document.querySelector<HTMLDivElement>(divId)!.innerHTML = html;
+    }
+
+    public printOpenToday(type: string, title: string, divId: string) {
         let html: string = `
             <table>
             <thead>
@@ -402,7 +449,7 @@ class main {
         `;
 
         if (!isOpenCheck) {
-            html = `Nothing open today for ${type}`;
+            html = `<p>Nothing open today for ${type}</p>`;
         }
 
         document.querySelector<HTMLDivElement>(divId)!.innerHTML = html;
@@ -414,8 +461,8 @@ class main {
     }
 
     public printSchedules(): void {
-        app.printTodaysSchedule('Tot Gym', `Tot Gyms currently open today`,'#gym-schedule-today');
-        app.printTodaysSchedule('Tot Room', `Tot Rooms currently open today`,'#tot-room-schedule-today');
+        app.printOpenToday('Tot Gym', `Tot Gyms currently open today`,'#gym-schedule-today');
+        app.printOpenToday('Tot Room', `Tot Rooms currently open today`,'#tot-room-schedule-today');
     }
 
     public printCurrentSchedule(): void {
@@ -423,15 +470,22 @@ class main {
         app.printOpenNow('Tot Room', `Tot Rooms open today`,'#tot-room-schedule-now');
     }
 
+    public printScheduleLater(): void {
+        app.printOpenLater('Tot Gym', `Tot Gyms open later`,'#gym-schedule-later');
+        app.printOpenLater('Tot Room', `Tot Rooms open later`,'#tot-room-schedule-later');
+    }
+
     public printHeaders(): void {
-        document.querySelector<HTMLHeadingElement>('#currently-open')!.innerHTML = `Currently Open on ${this.getWeekDay()}`;
-        document.querySelector<HTMLHeadingElement>('#todays-schedule')!.innerHTML = `Today's Schedule on ${this.getWeekDay()}`;
+        document.querySelector<HTMLHeadingElement>('#open-now')!.innerHTML = `Currently Open on ${this.getWeekDay()}`;
+        document.querySelector<HTMLHeadingElement>('#open-later')!.innerHTML = `Open Later on ${this.getWeekDay()}`;
+        document.querySelector<HTMLHeadingElement>('#open-today')!.innerHTML = `Today's Schedule on ${this.getWeekDay()}`;
     }
 }
 
 const app: main = new main();
 app.printHeaders();
 app.printSchedules();
+app.printScheduleLater();
 app.printCurrentSchedule();
 
 const now: Date = new Date();
@@ -439,6 +493,7 @@ const millisecondsUntilNextMinute: number = (60 - now.getSeconds()) * 1000 - now
 setTimeout(() => {
     setInterval(() => {
         app.printHeaders();
+        app.printScheduleLater();
         app.printCurrentSchedule();
     }, 60000);
 }, millisecondsUntilNextMinute);

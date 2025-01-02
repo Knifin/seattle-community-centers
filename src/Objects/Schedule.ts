@@ -77,6 +77,23 @@ export default class Schedule {
         return `${hours} ${hoursText} and ${minutes} ${minutesText}`;
     }
 
+    public getTimeUntilOpen(): string {
+        const now: Date = new Date();
+        const diff: number = this._openTime.getTime() - now.getTime();
+
+        const hours: number = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes: number = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+        const hoursText: string = hours == 1 ? 'hour' : 'hours';
+        const minutesText: string = minutes == 1 ? 'minute' : 'minutes';
+
+        if (hours === 0) {
+            return `${minutes} ${minutesText}`;
+        }
+
+        return `${hours} ${hoursText} and ${minutes} ${minutesText}`;
+    }
+
     private getTodayDayName(): string {
         return this._today.toLocaleString('en-US', {weekday: 'long'});
     }
@@ -94,6 +111,16 @@ export default class Schedule {
             this._startDate <= this._today &&
             this._endDate >= this._today &&
             this._openTime <= this._today &&
+            this._closeTime >= this._today &&
+            this._day === this.getTodayDayName()
+        );
+    }
+
+    public isOpenLater(): boolean {
+        return (
+            this._startDate <= this._today &&
+            this._endDate >= this._today &&
+            this._openTime >= this._today &&
             this._closeTime >= this._today &&
             this._day === this.getTodayDayName()
         );
