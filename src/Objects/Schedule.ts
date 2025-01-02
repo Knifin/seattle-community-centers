@@ -57,7 +57,7 @@ export default class Schedule {
     }
 
     public getHoursOpen(): string {
-        return `${this._openTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} - ${this._closeTime.toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'})}`;
+        return `${this._openTime.toLocaleTimeString([], {hour: 'numeric', minute:'numeric'})} - ${this._closeTime.toLocaleTimeString('en-US', {hour: 'numeric', minute:'numeric'})}`;
     }
 
     public getTimeLeft(): string {
